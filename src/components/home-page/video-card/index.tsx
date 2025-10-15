@@ -33,14 +33,14 @@ const VideoCard: FC<VideoCardProps> = ({ video, onVideoClick }) => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`Play video: ${video.name}`}
+      aria-label={`Play video: ${video.title}`}
     >
       <Box className="video-card__thumbnail-wrapper">
         <CardMedia
           component="img"
           height="200"
-          image={video.thumbnail}
-          alt={video.name}
+          image={video.thumbnailUrl}
+          alt={video.title}
           className="video-card__thumbnail"
           loading="lazy"
         />
@@ -52,15 +52,17 @@ const VideoCard: FC<VideoCardProps> = ({ video, onVideoClick }) => {
       </Box>
 
       <CardContent className="video-card__content">
-        <Typography variant="h6" className="video-card__title" title={video.name}>
-          {video.name}
+        <Typography variant="h6" className="video-card__title" title={video.title}>
+          {video.title}
         </Typography>
 
         <Box className="video-card__genre">
           <Typography variant="body2" className="video-card__genre-label">
             Genre:
           </Typography>
-          <Chip label={video.genre} size="small" className="video-card__genre-chip" />
+          {video.genere.slice(0, 2).map((genre) => (
+            <Chip key={genre} label={genre} size="small" className="video-card__genre-chip" />
+          ))}
         </Box>
 
         <Box className="video-card__tags">

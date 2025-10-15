@@ -1,26 +1,25 @@
 // Video types
 export interface Video {
+  appId: string;
+  appPackageName: string;
   createdAt: string;
-  genre: string;
-  id: number;
-  name: string;
+  description: string;
+  duration: number;
+  genere: string[];
+  id: string;
+  platform: string;
   tags: string[];
-  thumbnail: string;
+  thumbnailUrl: string;
+  title: string;
   videoUrl: string;
 }
 
 // Filter types
 export interface FilterData {
-  genres: string[];
+  appPackageName: string[];
+  genere: string[];
+  platform: string[];
   tags: string[];
-}
-
-// Pagination types
-export interface Pagination {
-  currentPage: number;
-  itemsPerPage: number;
-  totalItems: number;
-  totalPages: number;
 }
 
 // API Response types
@@ -29,16 +28,22 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
+// New cursor-based pagination response
 export interface VideosResponse {
-  pagination: Pagination;
+  cursor: string | undefined;
+  limit: number;
   videos: Video[];
 }
 
 // Filter state types
 export interface SelectedFilters {
-  dateFrom: null | string;
-  dateTo: null | string;
-  genres: string[];
-  sortBy: 'newest' | 'oldest';
+  appPackageName: string[];
+  cursor: null | string;
+  fromCreatedAt: null | string;
+  genere: string[];
+  platform: string[];
+  sortBy: 'createdAt';
+  sortDuration: 'asc' | 'desc';
   tags: string[];
+  toCreatedAt: null | string;
 }

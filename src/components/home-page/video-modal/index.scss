@@ -79,6 +79,13 @@
     padding-right: $spacing-xl;
   }
 
+  &__description {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+
   &__meta {
     align-items: center;
     display: flex;

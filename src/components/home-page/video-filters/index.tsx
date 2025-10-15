@@ -17,38 +17,58 @@ const VideoFilters: FC = () => {
 
   const [localGenres, setLocalGenres] = useState<string[]>([]);
   const [localTags, setLocalTags] = useState<string[]>([]);
-  const [localDateFrom, setLocalDateFrom] = useState<null | string>(null);
-  const [localDateTo, setLocalDateTo] = useState<null | string>(null);
+  const [localPlatform, setLocalPlatform] = useState<string[]>([]);
+  const [localAppPackageName, setLocalAppPackageName] = useState<string[]>([]);
+  const [localFromCreatedAt, setLocalFromCreatedAt] = useState<null | string>(null);
+  const [localToCreatedAt, setLocalToCreatedAt] = useState<null | string>(null);
 
   useEffect(() => {
     void dispatch(fetchFilters());
   }, [dispatch]);
 
   useEffect(() => {
-    setLocalGenres(selectedFilters.genres);
+    setLocalGenres(selectedFilters.genere);
     setLocalTags(selectedFilters.tags);
-    setLocalDateFrom(selectedFilters.dateFrom);
-    setLocalDateTo(selectedFilters.dateTo);
+    setLocalPlatform(selectedFilters.platform);
+    setLocalAppPackageName(selectedFilters.appPackageName);
+    setLocalFromCreatedAt(selectedFilters.fromCreatedAt);
+    setLocalToCreatedAt(selectedFilters.toCreatedAt);
   }, [selectedFilters]);
 
   const handleApplyFilters = useCallback(() => {
     dispatch(
       setSelectedFilters({
-        genres: localGenres,
         tags: localTags,
-        dateFrom: localDateFrom,
-        dateTo: localDateTo,
-        sortBy: selectedFilters.sortBy, // Keep existing sortBy value
+        genere: localGenres,
+        appPackageName: localAppPackageName,
+        platform: localPlatform,
+        fromCreatedAt: localFromCreatedAt,
+        toCreatedAt: localToCreatedAt,
+        sortBy: selectedFilters.sortBy,
+        sortDuration: selectedFilters.sortDuration,
+        cursor: null, // Reset cursor when filters change
       })
     );
     // VideoGrid will automatically fetch videos when selectedFilters change
-  }, [dispatch, localGenres, localTags, localDateFrom, localDateTo, selectedFilters.sortBy]);
+  }, [
+    dispatch,
+    localGenres,
+    localTags,
+    localPlatform,
+    localAppPackageName,
+    localFromCreatedAt,
+    localToCreatedAt,
+    selectedFilters.sortBy,
+    selectedFilters.sortDuration,
+  ]);
 
   const handleClearFilters = useCallback(() => {
     setLocalGenres([]);
     setLocalTags([]);
-    setLocalDateFrom(null);
-    setLocalDateTo(null);
+    setLocalPlatform([]);
+    setLocalAppPackageName([]);
+    setLocalFromCreatedAt(null);
+    setLocalToCreatedAt(null);
     dispatch(clearFilters());
     // VideoGrid will automatically fetch videos when selectedFilters change
   }, [dispatch]);
@@ -59,6 +79,14 @@ const VideoFilters: FC = () => {
 
   const handleTagChange = useCallback((_event: SyntheticEvent, value: string[]) => {
     setLocalTags(value);
+  }, []);
+
+  const handlePlatformChange = useCallback((_event: SyntheticEvent, value: string[]) => {
+    setLocalPlatform(value);
+  }, []);
+
+  const handleAppPackageNameChange = useCallback((_event: SyntheticEvent, value: string[]) => {
+    setLocalAppPackageName(value);
   }, []);
 
   const handleRetryFetchFilters = useCallback(() => {
@@ -91,7 +119,7 @@ const VideoFilters: FC = () => {
             <Autocomplete
               multiple
               size="small"
-              options={filterData.genres}
+              options={filterData.genere}
               value={localGenres}
               onChange={handleGenreChange}
               freeSolo
@@ -145,6 +173,65 @@ const VideoFilters: FC = () => {
               className="video-filters__autocomplete"
             />
           </Box>
+
+          {/* Platform Filter */}
+          <Box className="video-filters__field video-filters__field--platform">
+            <Autocomplete
+              multiple
+              size="small"
+              options={filterData.platform}
+              value={localPlatform}
+              onChange={handlePlatformChange}
+              renderTags={(value: readonly string[], getTagProps) =>
+                value.map((option: string, index: number) => {
+                  const { key, ...tagProps } = getTagProps({ index });
+                  return (
+                    <Chip
+                      key={key}
+                      label={option}
+                      {...tagProps}
+                      size="small"
+                      className="video-filters__chip"
+                    />
+                  );
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Platform" placeholder="android, ios, web..." />
+              )}
+              className="video-filters__autocomplete"
+            />
+          </Box>
+
+          {/* App Package Name Filter */}
+          <Box className="video-filters__field video-filters__field--package">
+            <Autocomplete
+              multiple
+              size="small"
+              options={filterData.appPackageName}
+              value={localAppPackageName}
+              onChange={handleAppPackageNameChange}
+              freeSolo
+              renderTags={(value: readonly string[], getTagProps) =>
+                value.map((option: string, index: number) => {
+                  const { key, ...tagProps } = getTagProps({ index });
+                  return (
+                    <Chip
+                      key={key}
+                      label={option}
+                      {...tagProps}
+                      size="small"
+                      className="video-filters__chip"
+                    />
+                  );
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="App Package" placeholder="com.example.app..." />
+              )}
+              className="video-filters__autocomplete"
+            />
+          </Box>
         </Box>
 
         {/* Date Range & Actions Row */}
@@ -155,9 +242,9 @@ const VideoFilters: FC = () => {
               type="date"
               label="From"
               size="small"
-              value={localDateFrom ?? ''}
+              value={localFromCreatedAt ?? ''}
               onChange={(e) => {
-                setLocalDateFrom(e.target.value || null);
+                setLocalFromCreatedAt(e.target.value || null);
               }}
               InputLabelProps={{ shrink: true }}
               InputProps={{
@@ -216,9 +303,9 @@ const VideoFilters: FC = () => {
               type="date"
               label="To"
               size="small"
-              value={localDateTo ?? ''}
+              value={localToCreatedAt ?? ''}
               onChange={(e) => {
-                setLocalDateTo(e.target.value || null);
+                setLocalToCreatedAt(e.target.value || null);
               }}
               InputLabelProps={{ shrink: true }}
               InputProps={{

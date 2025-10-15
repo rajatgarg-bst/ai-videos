@@ -14,8 +14,8 @@ export const fetchFilters = createAsyncThunk<FilterData, void>(
 // Thunk to fetch videos
 export const fetchVideos = createAsyncThunk<
   VideosResponse,
-  { filters: SelectedFilters; limit: number; page: number }
->('homePage/fetchVideos', async ({ filters, page, limit }) => {
-  const response = await apiService.getVideos(filters, page, limit);
+  { filters: SelectedFilters; limit: number }
+>('homePage/fetchVideos', async ({ filters, limit }) => {
+  const response = await apiService.getVideos(filters, limit);
   return response;
 });

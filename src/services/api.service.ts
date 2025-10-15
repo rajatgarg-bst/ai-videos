@@ -1,5 +1,5 @@
 import axiosInstance from '@/utils/axios';
-import type { ApiResponse, FilterData, SelectedFilters, VideosResponse } from '@/types';
+import type { FilterData, SelectedFilters, VideosResponse } from '@/types';
 import type { AxiosResponse } from 'axios';
 
 interface GoogleLoginRequest {
@@ -25,39 +25,61 @@ class ApiService {
 
   // Get filter options
   async getFilters(): Promise<FilterData> {
-    const response: AxiosResponse<ApiResponse<FilterData>> =
-      await axiosInstance.get('/api/filters');
-    return response.data.data;
+    const response: AxiosResponse<FilterData> = await axiosInstance.get('/media/v1/filters');
+    return response.data;
   }
 
-  // Get videos with filters and pagination
-  async getVideos(filters: SelectedFilters, page: number, limit: number): Promise<VideosResponse> {
+  // Get videos with filters and cursor-based pagination
+  async getVideos(filters: SelectedFilters, limit: number): Promise<VideosResponse> {
     const params = new URLSearchParams();
 
-    if (filters.genres.length > 0) {
-      params.append('genres', filters.genres.join(','));
+    // Add limit (default 20)
+    params.append('limit', limit.toString());
+
+    // Add sortBy (default createdAt)
+    params.append('sortBy', filters.sortBy);
+
+    // Add sortDuration (asc/desc)
+    params.append('sortDuration', filters.sortDuration);
+
+    // Add cursor if exists
+    if (filters.cursor) {
+      params.append('cursor', filters.cursor);
     }
 
+    // Add date range filters
+    if (filters.fromCreatedAt) {
+      params.append('fromCreatedAt', filters.fromCreatedAt);
+    }
+
+    if (filters.toCreatedAt) {
+      params.append('toCreatedAt', filters.toCreatedAt);
+    }
+
+    // Add tags filter
     if (filters.tags.length > 0) {
       params.append('tags', filters.tags.join(','));
     }
 
-    if (filters.dateFrom) {
-      params.append('dateFrom', filters.dateFrom);
+    // Add genere filter (note: API spec has typo "genere" instead of "genre")
+    if (filters.genere.length > 0) {
+      params.append('genere', filters.genere.join(','));
     }
 
-    if (filters.dateTo) {
-      params.append('dateTo', filters.dateTo);
+    // Add appPackageName filter
+    if (filters.appPackageName.length > 0) {
+      params.append('appPackageName', filters.appPackageName.join(','));
     }
 
-    params.append('sortBy', filters.sortBy);
-    params.append('page', page.toString());
-    params.append('limit', limit.toString());
+    // Add platform filter
+    if (filters.platform.length > 0) {
+      params.append('platform', filters.platform.join(','));
+    }
 
-    const response: AxiosResponse<ApiResponse<VideosResponse>> = await axiosInstance.get(
-      `/api/videos?${params.toString()}`
+    const response: AxiosResponse<VideosResponse> = await axiosInstance.get(
+      `/media/v1/video-list?${params.toString()}`
     );
-    return response.data.data;
+    return response.data;
   }
 }
 

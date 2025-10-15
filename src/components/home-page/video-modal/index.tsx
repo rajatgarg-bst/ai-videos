@@ -76,7 +76,7 @@ const VideoModal: FC<VideoModalProps> = ({ video, open, onClose }) => {
               autoPlay
               controlsList="nodownload"
               preload="metadata"
-              aria-label={`Video: ${video.name}`}
+              aria-label={`Video: ${video.title}`}
             >
               <source src={video.videoUrl} type="video/mp4" />
               <track kind="captions" src="" label="English" />
@@ -86,8 +86,14 @@ const VideoModal: FC<VideoModalProps> = ({ video, open, onClose }) => {
 
           <Box className="video-modal__details">
             <Typography variant="h5" id="video-modal-title" className="video-modal__title">
-              {video.name}
+              {video.title}
             </Typography>
+
+            {video.description && (
+              <Typography variant="body2" className="video-modal__description">
+                {video.description}
+              </Typography>
+            )}
 
             <Box className="video-modal__meta">
               <Box className="video-modal__left-group">
@@ -95,7 +101,9 @@ const VideoModal: FC<VideoModalProps> = ({ video, open, onClose }) => {
                   <Typography variant="body2" className="video-modal__label">
                     Genre:
                   </Typography>
-                  <Chip label={video.genre} size="small" variant="outlined" />
+                  {video.genere.map((genre) => (
+                    <Chip key={genre} label={genre} size="small" variant="outlined" />
+                  ))}
                 </Box>
 
                 <Box className="video-modal__tags">

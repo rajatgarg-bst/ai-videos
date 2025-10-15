@@ -1,6 +1,6 @@
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useCallback } from 'react';
-import { setSortBy } from '@/store/home-page/home-page-slice';
+import { setSortDuration } from '@/store/home-page/home-page-slice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import type { SelectChangeEvent } from '@mui/material';
 import type { FC } from 'react';
@@ -13,7 +13,7 @@ const VideoSort: FC = () => {
   const handleSortChange = useCallback(
     (event: SelectChangeEvent<string>) => {
       const { value } = event.target;
-      dispatch(setSortBy(value as 'newest' | 'oldest'));
+      dispatch(setSortDuration(value as 'asc' | 'desc'));
     },
     [dispatch]
   );
@@ -25,7 +25,7 @@ const VideoSort: FC = () => {
         <Select
           labelId="video-sort-label"
           id="video-sort-select"
-          value={selectedFilters.sortBy}
+          value={selectedFilters.sortDuration}
           onChange={handleSortChange}
           label="Sort By"
           className="video-sort__select"
@@ -39,7 +39,7 @@ const VideoSort: FC = () => {
           }}
         >
           <MenuItem
-            value="newest"
+            value="desc"
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'rgba(20, 184, 166, 0.12)',
@@ -54,7 +54,7 @@ const VideoSort: FC = () => {
             Newest
           </MenuItem>
           <MenuItem
-            value="oldest"
+            value="asc"
             sx={{
               '&.Mui-selected': {
                 backgroundColor: 'rgba(20, 184, 166, 0.12)',

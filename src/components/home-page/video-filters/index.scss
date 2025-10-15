@@ -84,7 +84,9 @@
     min-width: 0;
 
     &--genre,
-    &--tags {
+    &--tags,
+    &--platform,
+    &--package {
       flex: 1 1 calc(50% - #{math.div($spacing-sm, 2)});
       min-width: 200px;
     }
@@ -203,7 +205,9 @@
 @include breakpoint-up(sm) {
   .video-filters {
     &__field--genre,
-    &__field--tags {
+    &__field--tags,
+    &__field--platform,
+    &__field--package {
       flex: 1 1 calc(50% - #{math.div($spacing-md, 2)});
     }
 
@@ -221,7 +225,9 @@
     }
 
     &__field--genre,
-    &__field--tags {
+    &__field--tags,
+    &__field--platform,
+    &__field--package {
       flex: 1 1 auto;
       min-width: 250px;
     }
@@ -235,7 +241,9 @@
 @include breakpoint-up(lg) {
   .video-filters {
     &__field--genre,
-    &__field--tags {
+    &__field--tags,
+    &__field--platform,
+    &__field--package {
       min-width: 240px;
     }
   }

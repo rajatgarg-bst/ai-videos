@@ -1,14 +1,15 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { fetchFilters, fetchVideos } from './home-page-thunks';
-import type { FilterData, Pagination, SelectedFilters, Video } from '@/types';
+import type { FilterData, SelectedFilters, Video } from '@/types';
 
 interface HomePageState {
+  cursor: null | string | undefined;
   error: null | string;
   filterData: FilterData;
   filtersError: null | string;
   filtersLoading: boolean;
+  hasMore: boolean;
   loading: boolean;
-  pagination: null | Pagination;
   selectedFilters: SelectedFilters;
   selectedVideo: null | Video;
   videos: Video[];
@@ -19,19 +20,26 @@ const initialState: HomePageState = {
   loading: false,
   error: null,
   filterData: {
-    genres: [],
+    genere: [],
     tags: [],
+    platform: [],
+    appPackageName: [],
   },
   filtersLoading: false,
   filtersError: null,
   selectedFilters: {
-    genres: [],
     tags: [],
-    dateFrom: null,
-    dateTo: null,
-    sortBy: 'newest',
+    genere: [],
+    appPackageName: [],
+    platform: [],
+    fromCreatedAt: null,
+    toCreatedAt: null,
+    sortBy: 'createdAt',
+    sortDuration: 'desc',
+    cursor: null,
   },
-  pagination: null,
+  cursor: null,
+  hasMore: true,
   selectedVideo: null,
 };
 
@@ -45,17 +53,26 @@ const homePageSlice = createSlice({
     setSelectedVideo: (state, action: PayloadAction<null | Video>) => {
       state.selectedVideo = action.payload;
     },
-    setSortBy: (state, action: PayloadAction<'newest' | 'oldest'>) => {
-      state.selectedFilters.sortBy = action.payload;
+    setSortDuration: (state, action: PayloadAction<'asc' | 'desc'>) => {
+      state.selectedFilters.sortDuration = action.payload;
+    },
+    setCursor: (state, action: PayloadAction<null | string>) => {
+      state.selectedFilters.cursor = action.payload;
     },
     clearFilters: (state) => {
       state.selectedFilters = {
-        genres: [],
         tags: [],
-        dateFrom: null,
-        dateTo: null,
-        sortBy: 'newest',
+        genere: [],
+        appPackageName: [],
+        platform: [],
+        fromCreatedAt: null,
+        toCreatedAt: null,
+        sortBy: 'createdAt',
+        sortDuration: 'desc',
+        cursor: null,
       };
+      state.cursor = null;
+      state.hasMore = true;
     },
   },
   extraReducers: (builder) => {
@@ -80,8 +97,17 @@ const homePageSlice = createSlice({
     });
     builder.addCase(fetchVideos.fulfilled, (state, action) => {
       state.loading = false;
-      state.videos = action.payload.videos;
-      state.pagination = action.payload.pagination;
+      // If cursor was null, it's a fresh fetch (replace videos)
+      // If cursor exists, it's loading more (append videos)
+      if (!state.selectedFilters.cursor) {
+        state.videos = action.payload.videos;
+      } else {
+        state.videos = [...state.videos, ...action.payload.videos];
+      }
+      state.cursor = action.payload.cursor;
+      state.hasMore = action.payload.cursor !== undefined;
+      // Update the cursor in selectedFilters for next load
+      state.selectedFilters.cursor = action.payload.cursor ?? null;
     });
     builder.addCase(fetchVideos.rejected, (state, action) => {
       state.loading = false;
@@ -90,6 +116,6 @@ const homePageSlice = createSlice({
   },
 });
 
-export const { setSelectedFilters, setSelectedVideo, setSortBy, clearFilters } =
+export const { setSelectedFilters, setSelectedVideo, setSortDuration, setCursor, clearFilters } =
   homePageSlice.actions;
 export default homePageSlice.reducer;

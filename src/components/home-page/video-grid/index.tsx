@@ -1,8 +1,8 @@
-import { Box, Grid, Pagination, Typography } from '@mui/material';
-import { useEffect, useState, useCallback } from 'react';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import { useEffect, useCallback } from 'react';
 import ErrorMessage from '@/components/common/error-message';
 import LoadingSpinner from '@/components/common/loading-spinner';
-import { setSelectedVideo } from '@/store/home-page/home-page-slice';
+import { setSelectedVideo, setCursor } from '@/store/home-page/home-page-slice';
 import { fetchVideos } from '@/store/home-page/home-page-thunks';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import VideoCard from '../video-card';
@@ -13,29 +13,35 @@ import './index.scss';
 
 const VideoGrid: FC = () => {
   const dispatch = useAppDispatch();
-  const { videos, loading, error, pagination, selectedFilters, selectedVideo } = useAppSelector(
-    (state) => state.homePage
-  );
+  const { videos, loading, error, cursor, hasMore, selectedFilters, selectedVideo } =
+    useAppSelector((state) => state.homePage);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 20; // Default limit as per API spec
 
-  // Reset to page 1 when filters change
+  // Fetch initial videos when filters change
   useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedFilters]);
-
-  // Fetch videos whenever page or filters change
-  useEffect(() => {
+    // Reset cursor when filters change
+    dispatch(setCursor(null));
     void dispatch(
-      fetchVideos({ filters: selectedFilters, page: currentPage, limit: itemsPerPage })
+      fetchVideos({ filters: { ...selectedFilters, cursor: null }, limit: itemsPerPage })
     );
-  }, [dispatch, selectedFilters, currentPage]);
+  }, [
+    dispatch,
+    selectedFilters.tags,
+    selectedFilters.genere,
+    selectedFilters.appPackageName,
+    selectedFilters.platform,
+    selectedFilters.fromCreatedAt,
+    selectedFilters.toCreatedAt,
+    selectedFilters.sortBy,
+    selectedFilters.sortDuration,
+  ]);
 
-  const handlePageChange = useCallback((_event: React.ChangeEvent<unknown>, value: number) => {
-    setCurrentPage(value);
-    window.scrollTo({ top: 0 });
-  }, []);
+  const handleLoadMore = useCallback(() => {
+    if (cursor && hasMore) {
+      void dispatch(fetchVideos({ filters: { ...selectedFilters, cursor }, limit: itemsPerPage }));
+    }
+  }, [dispatch, selectedFilters, cursor, hasMore, itemsPerPage]);
 
   const handleVideoClick = useCallback(
     (video: Video) => {
@@ -50,19 +56,19 @@ const VideoGrid: FC = () => {
 
   const handleRetryFetch = useCallback(() => {
     void dispatch(
-      fetchVideos({ filters: selectedFilters, page: currentPage, limit: itemsPerPage })
+      fetchVideos({ filters: { ...selectedFilters, cursor: null }, limit: itemsPerPage })
     );
-  }, [dispatch, selectedFilters, currentPage, itemsPerPage]);
+  }, [dispatch, selectedFilters, itemsPerPage]);
 
-  if (loading) {
+  if (loading && videos.length === 0) {
     return <LoadingSpinner message="Loading videos..." />;
   }
 
-  if (error) {
+  if (error && videos.length === 0) {
     return <ErrorMessage message={error} onRetry={handleRetryFetch} />;
   }
 
-  if (videos.length === 0) {
+  if (videos.length === 0 && !loading) {
     return (
       <Box className="video-grid__empty">
         <Typography variant="h6" className="video-grid__empty-title">
@@ -85,22 +91,28 @@ const VideoGrid: FC = () => {
         ))}
       </Grid>
 
-      {pagination && pagination.totalPages > 1 && (
-        <Box className="video-grid__pagination">
-          <Pagination
-            count={pagination.totalPages}
-            page={currentPage}
-            onChange={handlePageChange}
+      {hasMore && cursor && (
+        <Box className="video-grid__load-more">
+          <Button
+            variant="contained"
             color="primary"
             size="large"
-            showFirstButton
-            showLastButton
-            className="video-grid__pagination-component"
-          />
-          <Typography variant="body2" className="video-grid__pagination-info">
-            Showing {(currentPage - 1) * itemsPerPage + 1} -{' '}
-            {Math.min(currentPage * itemsPerPage, pagination.totalItems)} of {pagination.totalItems}{' '}
-            videos
+            onClick={handleLoadMore}
+            disabled={loading}
+            className="video-grid__load-more-button"
+          >
+            {loading ? 'Loading...' : 'Load More Videos'}
+          </Button>
+          <Typography variant="body2" className="video-grid__load-more-info">
+            Showing {videos.length} videos
+          </Typography>
+        </Box>
+      )}
+
+      {!hasMore && videos.length > 0 && (
+        <Box className="video-grid__end-message">
+          <Typography variant="body2" className="video-grid__end-text">
+            You&apos;ve reached the end of the list
           </Typography>
         </Box>
       )}

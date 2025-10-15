@@ -1175,4 +1175,576 @@ app.post('/auth/v1/google-login', (req, res) => {
 
 ---
 
-**Last Updated:** Oct 15, 2025 | **Version:** 7.0 (Added Google OAuth 2.0 Authentication with merged auth/user state)
+**Last Updated:** Oct 15, 2025 | **Version:** 8.1 (Updated Video interface with new fields: title, description, duration, appId, appPackageName, platform, genere array)
+
+---
+
+## 📦 Video Interface Update (Version 8.1)
+
+### Overview
+
+Updated the Video interface to match the new API specification with additional metadata fields and genre as an array.
+
+### Video Interface Changes
+
+**Old Interface:**
+
+```typescript
+export interface Video {
+  id: number;
+  name: string;
+  genre: string;
+  tags: string[];
+  thumbnail: string;
+  videoUrl: string;
+  createdAt: string;
+}
+```
+
+**New Interface:**
+
+```typescript
+export interface Video {
+  id: string; // Changed from number to string (vid_001, vid_002, etc.)
+  title: string; // Renamed from 'name'
+  description: string; // New field
+  genere: string[]; // Changed from 'genre' (string) to 'genere' (array) - note API typo
+  tags: string[]; // Unchanged
+  thumbnailUrl: string; // Renamed from 'thumbnail'
+  videoUrl: string; // Unchanged
+  duration: number; // New field (in seconds)
+  createdAt: string; // Unchanged (ISO date string)
+  appId: string; // New field
+  appPackageName: string; // New field
+  platform: string; // New field (android, ios, web)
+}
+```
+
+### Key Changes
+
+1. **ID Type**: Changed from `number` to `string` format (`vid_001`, `vid_002`, etc.)
+2. **Title**: Renamed `name` → `title`
+3. **Description**: Added video description field
+4. **Genre**: Changed from single `genre: string` to array `genere: string[]` (follows API spec typo)
+5. **Thumbnail**: Renamed `thumbnail` → `thumbnailUrl`
+6. **Duration**: Added duration in seconds
+7. **App Metadata**: Added `appId`, `appPackageName`, and `platform` fields
+
+### Component Updates
+
+#### VideoCard (`src/components/home-page/video-card/index.tsx`)
+
+- Updated to display `video.title` instead of `video.name`
+- Updated to use `video.thumbnailUrl` instead of `video.thumbnail`
+- Changed genre display to handle array: `video.genere.slice(0, 2).map(...)` - shows first 2 genres
+
+#### VideoModal (`src/components/home-page/video-modal/index.tsx`)
+
+- Updated to display `video.title` instead of `video.name`
+- **Added description display**: Shows `video.description` below title (optional field)
+- Changed genre display to handle array: `video.genere.map(...)` - shows all genres
+- Added SCSS styling for description field
+
+#### Mock Server (`server/index.js`)
+
+- Updated all 20 mock videos with new interface structure
+- Each video now includes:
+  - String IDs: `'vid_001'` through `'vid_020'`
+  - Title and description
+  - Multiple genres per video (array)
+  - Duration values (180-360 seconds)
+  - App metadata (`appId`, `appPackageName`, `platform`)
+- Updated filter logic to handle `genere` as array:
+  - Uses `video.genere.some((g) => genreArray.includes(g))` for matching
+- Implemented `appPackageName` and `platform` filtering (was previously mock)
+
+### Code Quality
+
+✅ **All linters pass:**
+
+- ESLint: 0 errors
+- Stylelint: 0 errors
+- TypeScript: 0 errors
+- Build: Successful
+
+✅ **All P0 rules followed:**
+
+- Proper TypeScript types (no `any`)
+- CSS variables for description styling
+- SCSS variable `$line-height-relaxed` used
+- BEM naming convention maintained
+
+### Testing Notes
+
+- Video cards now show multiple genres (up to 2)
+- Video modal shows all genres for selected video
+- Description appears in modal when available
+- All filters work with new array-based genre structure
+- Platform and appPackageName filters are now functional
+
+---
+
+**Last Updated:** Oct 15, 2025 | **Version:** 8.1 (Updated Video interface with new fields: title, description, duration, appId, appPackageName, platform, genere array)
+
+---
+
+## 🔄 API Migration: Cursor-Based Pagination (Version 8.0)
+
+### Overview
+
+The application has been updated to use a new API endpoint with cursor-based pagination instead of page-based pagination.
+
+### API Changes
+
+**Old Endpoint:** `GET /api/videos`  
+**New Endpoint:** `GET /media/v1/video-list`
+
+### New Query Parameters
+
+| Parameter      | Type            | Description                            | Default   |
+| -------------- | --------------- | -------------------------------------- | --------- |
+| limit          | number          | Number of items per page               | 20        |
+| sortBy         | string          | Field to sort by                       | createdAt |
+| sortDuration   | string          | Sort direction: `asc` or `desc`        | asc       |
+| cursor         | string          | Cursor for pagination (base64 encoded) | -         |
+| fromCreatedAt  | ISO Date String | Filter videos created after this date  | -         |
+| toCreatedAt    | ISO Date String | Filter videos created before this date | -         |
+| tags           | string[]        | Filter by tags (comma-separated)       | -         |
+| genere         | string[]        | Filter by genres (comma-separated)     | -         |
+| appPackageName | string[]        | Filter by app package name             | -         |
+| platform       | string[]        | Filter by platform                     | -         |
+
+**Note:** API spec has typo "genere" instead of "genre" - implementation follows spec.
+
+### Response Format
+
+**Old Format:**
+
+```typescript
+{
+  videos: Video[],
+  pagination: {
+    currentPage: number,
+    totalPages: number,
+    totalItems: number,
+    itemsPerPage: number
+  }
+}
+```
+
+**New Format:**
+
+```typescript
+{
+  limit: number,
+  cursor: string | undefined, // undefined on last page
+  videos: Video[]
+}
+```
+
+### Key Implementation Changes
+
+#### 1. Types (`src/types/index.ts`)
+
+- Removed `Pagination` interface
+- Updated `VideosResponse` to use cursor
+- Updated `SelectedFilters` with new fields:
+  - `sortBy: 'createdAt'` (was `'newest' | 'oldest'`)
+  - `sortDuration: 'asc' | 'desc'` (new)
+  - `genere: string[]` (was `genres`)
+  - `fromCreatedAt: string | null` (was `dateFrom`)
+  - `toCreatedAt: string | null` (was `dateTo`)
+  - `cursor: string | null` (new)
+  - `appPackageName: string[]` (new)
+  - `platform: string[]` (new)
+
+#### 2. Redux State (`src/store/home-page/home-page-slice.ts`)
+
+- Removed `pagination` state
+- Added `cursor: string | null | undefined`
+- Added `hasMore: boolean` (true when cursor exists)
+- Videos are **appended** when loading more, **replaced** on fresh fetch
+- New actions: `setSortDuration()`, `setCursor()`
+- Removed action: `setSortBy()`
+
+#### 3. API Service (`src/services/api.service.ts`)
+
+- Updated endpoint to `/media/v1/video-list`
+- Removed `page` parameter
+- Added new query parameters as per spec
+- Response no longer wrapped in `ApiResponse` wrapper
+
+#### 4. UI Components
+
+**VideoGrid (`src/components/home-page/video-grid/`):**
+
+- Replaced MUI Pagination with "Load More" button
+- Shows video count instead of page numbers
+- Displays "You've reached the end" when no more videos
+- Automatically resets cursor when filters change
+
+**VideoSort (`src/components/home-page/video-sort/`):**
+
+- Changed from `setSortBy('newest'|'oldest')` to `setSortDuration('desc'|'asc')`
+- "Newest" = `desc`, "Oldest" = `asc`
+
+**VideoFilters (`src/components/home-page/video-filters/`):**
+
+- Updated state variables: `localFromCreatedAt`, `localToCreatedAt`
+- Resets cursor when filters are applied
+
+#### 5. Mock Server (`server/index.js`)
+
+- Added new `/media/v1/video-list` endpoint
+- Implements cursor-based pagination using base64 encoded indices
+- Kept legacy `/api/videos` endpoint for backward compatibility
+- Cursor calculation:
+  - Encode: `Buffer.from(index.toString()).toString('base64')`
+  - Decode: `parseInt(Buffer.from(cursor, 'base64').toString('utf-8'), 10)`
+
+### Migration Benefits
+
+✅ **Scalability:** Cursor-based pagination handles large datasets better  
+✅ **Performance:** No need to calculate total pages/items  
+✅ **Consistency:** Prevents issues with concurrent data changes  
+✅ **Real-time:** New items don't affect cursor position  
+✅ **Infinite Scroll:** Easy to implement "Load More" pattern
+
+### Code Quality
+
+✅ **All linters pass:**
+
+- ESLint: 0 errors
+- Stylelint: 0 errors
+- TypeScript: 0 errors
+
+✅ **All P0 rules followed:**
+
+- No hardcoded colors/spacing
+- Proper TypeScript types
+- BEM naming conventions
+- CSS variables used throughout
+
+### Testing Checklist
+
+- [x] Initial video load works
+- [x] "Load More" button appears when more videos exist
+- [x] Videos append correctly on load more
+- [x] Cursor resets when filters change
+- [x] Sort by newest/oldest works
+- [x] Date range filtering works
+- [x] Genre/tag filtering works
+- [x] End message shows when no more videos
+- [x] All linters pass
+
+---
+
+**Last Updated:** Oct 15, 2025 | **Version:** 8.2 (Updated Filters API: /media/v1/filters with genere, platform, appPackageName)
+
+---
+
+## 🎯 Filters API Update (Version 8.2)
+
+### Overview
+
+Updated the filters API endpoint and response structure to include all available filter options.
+
+### API Changes
+
+**Old Endpoint:** `GET /api/filters`  
+**New Endpoint:** `GET /media/v1/filters`
+
+### Response Format Changes
+
+**Old Response:**
+
+```typescript
+{
+  success: true,
+  data: {
+    genres: string[],
+    tags: string[]
+  }
+}
+```
+
+**New Response:**
+
+```typescript
+{
+  genere: string[],           // Note: Matches video interface field name
+  tags: string[],
+  platform: string[],         // New: ['android', 'ios', 'web']
+  appPackageName: string[]    // New: List of all app package names
+}
+```
+
+### Key Changes
+
+1. **Endpoint Updated**: `/api/filters` → `/media/v1/filters`
+2. **No Wrapper**: Response is direct object (no `{ success, data }` wrapper)
+3. **Field Renamed**: `genres` → `genere` (matches video interface)
+4. **New Field**: `platform` - Array of available platforms
+5. **New Field**: `appPackageName` - Array of all app package names
+
+### Implementation Changes
+
+#### 1. Types (`src/types/index.ts`)
+
+```typescript
+export interface FilterData {
+  genere: string[]; // Was: genres
+  tags: string[];
+  platform: string[]; // New
+  appPackageName: string[]; // New
+}
+```
+
+#### 2. API Service (`src/services/api.service.ts`)
+
+- Updated endpoint to `/media/v1/filters`
+- Removed `ApiResponse` wrapper
+- Response now directly returns `FilterData`
+
+#### 3. Mock Server (`server/index.js`)
+
+**New `/media/v1/filters` endpoint:**
+
+```javascript
+{
+  genere: ['Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Thriller', 'Romance', 'Documentary', 'Adventure', 'Entertainment', 'Mystery', 'Nature'],
+  tags: ['Popular', 'Trending', 'New Release', 'Award Winner', 'Classic', 'Family Friendly', 'HD', '4K'],
+  platform: ['android', 'ios', 'web'],
+  appPackageName: ['com.example.adventure', 'com.example.comedy', ...] // All 20 app packages
+}
+```
+
+**Legacy `/api/filters` endpoint** (kept for backward compatibility):
+
+```javascript
+{
+  success: true,
+  data: {
+    genres: filterData.genere,  // Maps to old field name
+    tags: filterData.tags
+  }
+}
+```
+
+#### 4. Components Updated
+
+**VideoFilters (`src/components/home-page/video-filters/index.tsx`):**
+
+- Changed `filterData.genres` → `filterData.genere`
+- Component already supports multiple genres (array)
+
+**Redux State (`src/store/home-page/home-page-slice.ts`):**
+
+```typescript
+filterData: {
+  genere: [],
+  tags: [],
+  platform: [],
+  appPackageName: [],
+}
+```
+
+### Benefits
+
+✅ **Comprehensive Filters**: All filter options available from API  
+✅ **Platform Filtering**: Can filter videos by platform (android/ios/web)  
+✅ **App Package Filtering**: Can filter by specific app packages  
+✅ **Consistent Naming**: Matches video interface (`genere` array)  
+✅ **Backward Compatible**: Legacy endpoint still works
+
+### Code Quality
+
+✅ **All linters pass:**
+
+- ESLint: 0 errors
+- Stylelint: 0 errors
+- TypeScript: 0 errors
+- Build: Successful
+
+✅ **All P0 rules followed:**
+
+- Proper TypeScript types
+- No hardcoded values
+- BEM naming conventions
+
+### Testing Notes
+
+- Filters endpoint returns all available options
+- Genre filter works with array-based matching
+- Platform and appPackageName fields available for future UI implementation
+- Legacy endpoint maintained for backward compatibility
+
+---
+
+**Last Updated:** Oct 15, 2025 | **Version:** 8.3 (Added Platform and App Package Name UI Filters)
+
+---
+
+## 🎯 Platform & App Package UI Filters (Version 8.3)
+
+### Overview
+
+Added user interface components for filtering videos by platform and app package name, complementing the existing genre and tags filters.
+
+### Implementation Details
+
+#### 1. VideoFilters Component Updates
+
+**New State Variables:**
+
+```typescript
+const [localPlatform, setLocalPlatform] = useState<string[]>([]);
+const [localAppPackageName, setLocalAppPackageName] = useState<string[]>([]);
+```
+
+**New Event Handlers:**
+
+```typescript
+const handlePlatformChange = useCallback((_event: React.SyntheticEvent, value: string[]) => {
+  setLocalPlatform(value);
+}, []);
+
+const handleAppPackageNameChange = useCallback((_event: React.SyntheticEvent, value: string[]) => {
+  setLocalAppPackageName(value);
+}, []);
+```
+
+**Updated Logic:**
+
+- `handleApplyFilters()` - Now includes `platform: localPlatform` and `appPackageName: localAppPackageName`
+- `handleClearFilters()` - Resets `setLocalPlatform([])` and `setLocalAppPackageName([])`
+- `useEffect` - Syncs local state with Redux `selectedFilters.platform` and `selectedFilters.appPackageName`
+
+#### 2. UI Components Added
+
+**Platform Filter:**
+
+```tsx
+<Box className="video-filters__field video-filters__field--platform">
+  <Autocomplete
+    multiple
+    size="small"
+    options={filterData.platform}  // ['android', 'ios', 'web']
+    value={localPlatform}
+    onChange={handlePlatformChange}
+    renderTags={(value, getTagProps) => /* Chip rendering */}
+    renderInput={(params) => <TextField {...params} label="Platform" placeholder="android, ios, web..." />}
+    className="video-filters__autocomplete"
+  />
+</Box>
+```
+
+**App Package Name Filter:**
+
+```tsx
+<Box className="video-filters__field video-filters__field--package">
+  <Autocomplete
+    multiple
+    freeSolo  // Allows custom input
+    size="small"
+    options={filterData.appPackageName}  // All 20 app packages
+    value={localAppPackageName}
+    onChange={handleAppPackageNameChange}
+    renderTags={(value, getTagProps) => /* Chip rendering */}
+    renderInput={(params) => <TextField {...params} label="App Package" placeholder="com.example.app..." />}
+    className="video-filters__autocomplete"
+  />
+</Box>
+```
+
+#### 3. SCSS Styling Updates
+
+**Updated `video-filters__field` modifiers:**
+
+```scss
+&__field {
+  flex: 1 1 100%;
+  min-width: 0;
+
+  &--genre,
+  &--tags,
+  &--platform,    // New
+  &--package {
+    // New
+    flex: 1 1 calc(50% - #{math.div($spacing-sm, 2)});
+    min-width: 200px;
+  }
+}
+```
+
+**Responsive Breakpoints:**
+
+- **Mobile (default):** 2 columns (50% width each)
+- **Small (sm):** 2 columns with increased spacing
+- **Medium (md):** 4 columns, flexible layout, min-width: 250px
+- **Large (lg):** 4 columns, min-width: 240px
+
+All breakpoints updated to include `&--platform` and `&--package` modifiers.
+
+### Filter Layout
+
+**Main Row (4 filters side-by-side on desktop):**
+
+1. Genres (multi-select dropdown)
+2. Tags (multi-select dropdown with custom input)
+3. Platform (multi-select dropdown) ⭐ NEW
+4. App Package Name (multi-select dropdown with custom input) ⭐ NEW
+
+**Secondary Row:**
+
+- Date Range: From Date | To Date
+- Actions: Apply Filters | Clear Filters
+
+### Key Features
+
+✅ **Multi-select Autocomplete**: Both filters support selecting multiple values  
+✅ **Custom Input**: App Package filter has `freeSolo` enabled for custom package names  
+✅ **Chip Display**: Selected values appear as gradient chips with hover effects  
+✅ **Data-Driven Options**: Options populated from `/media/v1/filters` API  
+✅ **Responsive Layout**: 2-column mobile, 4-column desktop  
+✅ **State Synchronization**: Local state syncs with Redux `selectedFilters`  
+✅ **API Integration**: Filters sent as query params to `/media/v1/video-list`
+
+### Code Quality Verification
+
+✅ **All linters pass:**
+
+- ESLint: 0 errors
+- Stylelint: 0 errors
+- TypeScript: 0 errors
+- Build: Successful (12.05s)
+
+✅ **All P0 rules followed:**
+
+- No `any` types (proper string[] typing)
+- CSS variables used throughout
+- SCSS variables for spacing
+- BEM naming: `.video-filters__field--platform`, `.video-filters__field--package`
+- Import types separated
+- Typed Redux hooks used
+
+### Files Modified
+
+- ✅ `src/components/home-page/video-filters/index.tsx` - Added UI components, state, handlers
+- ✅ `src/components/home-page/video-filters/index.scss` - Updated field modifiers, responsive styles
+
+### Testing Checklist
+
+- [x] Platform filter displays 3 options: android, ios, web
+- [x] App Package filter displays all 20 package names
+- [x] Selected values render as chips
+- [x] Apply Filters button includes new filter values
+- [x] Clear Filters button resets new filters
+- [x] API calls include `platform` and `appPackageName` query params
+- [x] Responsive layout works on mobile (2 columns) and desktop (4 columns)
+- [x] All linters pass
+- [x] Production build succeeds
+
+---
+
+**Last Updated:** Oct 15, 2025 | **Version:** 8.3 (Added Platform and App Package Name UI Filters)

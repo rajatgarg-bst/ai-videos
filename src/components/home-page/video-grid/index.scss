@@ -74,6 +74,54 @@
     font-weight: $font-weight-medium;
     text-align: center;
   }
+
+  &__load-more {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-3xl;
+    padding: $spacing-lg 0;
+  }
+
+  &__load-more-button {
+    border-radius: $border-radius-md;
+    font-weight: $font-weight-semibold;
+    min-width: 200px;
+    padding: $spacing-md $spacing-xl;
+    transition: all $transition-base $transition-timing;
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 16px var(--shadow-primary);
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  &__load-more-info {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    text-align: center;
+  }
+
+  &__end-message {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: $spacing-3xl;
+    padding: $spacing-lg 0;
+  }
+
+  &__end-text {
+    color: var(--text-tertiary);
+    font-size: $font-size-sm;
+    font-style: italic;
+    font-weight: $font-weight-medium;
+  }
 }
 
 @include breakpoint-up(md) {
