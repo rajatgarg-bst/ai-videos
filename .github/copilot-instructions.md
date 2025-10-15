@@ -1747,4 +1747,171 @@ All breakpoints updated to include `&--platform` and `&--package` modifiers.
 
 ---
 
-**Last Updated:** Oct 15, 2025 | **Version:** 8.3 (Added Platform and App Package Name UI Filters)
+**Last Updated:** Oct 15, 2025 | **Version:** 8.4 (Implemented Infinite Scroll with Cursor-Based Pagination)
+
+---
+
+## ♾️ Infinite Scroll Implementation (Version 8.4)
+
+### Overview
+
+Replaced "Load More" button with automatic infinite scroll that fetches next page of videos when user scrolls near the bottom.
+
+### Key Changes
+
+#### 1. VideoGrid Component (`src/components/home-page/video-grid/index.tsx`)
+
+**Added Intersection Observer:**
+
+- Uses `IntersectionObserver` API to detect when loader element is visible
+- Triggers automatic fetch when user scrolls within 100px of loader
+- Prevents duplicate requests with `isFetchingRef` flag
+- Observer options: `rootMargin: '100px'`, `threshold: 0.1`
+
+**State Management:**
+
+- `loaderRef` - Reference to the infinite loader element
+- `isFetchingRef` - Prevents duplicate API calls during active fetch
+- Initial cursor is `null` (first page)
+- Cursor updated automatically by API response
+
+**User Experience:**
+
+- Initial load: 20 videos with empty cursor
+- On scroll: Loader appears at bottom
+- Auto-fetch: Triggers when loader becomes visible
+- Loading state: Shows CircularProgress spinner with text
+- End state: Shows "You've reached the end • {count} videos"
+
+#### 2. SCSS Styling (`src/components/home-page/video-grid/index.scss`)
+
+**New Classes:**
+
+```scss
+&__infinite-loader {
+  min-height: 100px;
+  margin-top: $spacing-3xl;
+  padding: $spacing-lg 0;
+}
+
+&__loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+&__spinner {
+  color: var(--primary-color);
+}
+
+&__loader-text {
+  color: var(--text-secondary);
+  font-size: $font-size-sm;
+}
+```
+
+### Flow Diagram
+
+```
+1. Page loads → fetchVideos({ cursor: null, limit: 20 })
+   ↓
+2. API returns: { videos: [...20 items], cursor: 'base64_encoded_20' }
+   ↓
+3. User scrolls down → Intersection Observer detects loader visibility
+   ↓
+4. Auto-trigger: fetchVideos({ cursor: 'base64_encoded_20', limit: 20 })
+   ↓
+5. API returns: { videos: [...20 more], cursor: 'base64_encoded_40' }
+   ↓
+6. Videos appended to existing list (now 40 total)
+   ↓
+7. Repeat steps 3-6 until cursor is undefined (no more videos)
+   ↓
+8. Show end message: "You've reached the end • {total} videos"
+```
+
+### Technical Implementation
+
+**Intersection Observer Setup:**
+
+```typescript
+const observer = new IntersectionObserver(handleIntersection, {
+  root: null, // Viewport as root
+  rootMargin: '100px', // Trigger 100px before reaching loader
+  threshold: 0.1, // 10% of loader must be visible
+});
+```
+
+**Fetch Prevention Logic:**
+
+```typescript
+if (
+  entry &&
+  entry.isIntersecting &&  // Loader is visible
+  hasMore &&               // More videos available
+  cursor &&                // Cursor exists
+  !loading &&              // Not currently loading
+  !isFetchingRef.current   // No active fetch request
+) {
+  isFetchingRef.current = true;
+  dispatch(fetchVideos(...)).finally(() => {
+    isFetchingRef.current = false;
+  });
+}
+```
+
+**Filter Change Behavior:**
+
+- Resets cursor to `null`
+- Replaces videos (not append)
+- Scrolls to top automatically (browser behavior)
+
+### Benefits
+
+✅ **Seamless UX**: No manual clicking required  
+✅ **Performance**: Only fetches when needed (100px before bottom)  
+✅ **Prevention**: Duplicate request protection with ref flag  
+✅ **Responsive**: Works on all screen sizes  
+✅ **Accessible**: Keyboard users can still scroll to trigger  
+✅ **Visual Feedback**: Spinner and text show loading state
+
+### Code Quality
+
+✅ **All linters pass:**
+
+- ESLint: 0 errors
+- Stylelint: 0 errors
+- TypeScript: 0 errors
+- Prettier: Formatted correctly
+- Build: Successful (12.29s)
+
+✅ **All P0 rules followed:**
+
+- Proper TypeScript types (no `any`)
+- CSS variables for colors
+- SCSS variables for spacing
+- BEM naming conventions
+- Typed Redux hooks
+
+### Files Modified
+
+- ✅ `src/components/home-page/video-grid/index.tsx` - Added Intersection Observer, removed Load More button
+- ✅ `src/components/home-page/video-grid/index.scss` - Added infinite loader styles
+
+### Testing Checklist
+
+- [x] Initial load shows 20 videos
+- [x] Scrolling near bottom auto-fetches next page
+- [x] Loader shows spinning indicator during fetch
+- [x] Videos append correctly to existing list
+- [x] End message appears when no more videos
+- [x] Filter changes reset scroll and cursor
+- [x] No duplicate requests during active fetch
+- [x] Works on mobile and desktop
+- [x] All linters pass
+- [x] Production build succeeds
+
+---
+
+**Last Updated:** Oct 15, 2025 | **Version:** 8.4 (Implemented Infinite Scroll with Cursor-Based Pagination)

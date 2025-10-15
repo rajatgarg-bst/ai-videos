@@ -108,6 +108,32 @@
     text-align: center;
   }
 
+  &__infinite-loader {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: $spacing-3xl;
+    min-height: 100px;
+    padding: $spacing-lg 0;
+  }
+
+  &__loader-content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__spinner {
+    color: var(--primary-color);
+  }
+
+  &__loader-text {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+
   &__end-message {
     align-items: center;
     display: flex;

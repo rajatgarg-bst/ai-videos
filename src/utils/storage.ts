@@ -3,6 +3,8 @@
  * Single source of truth for all storage operations
  */
 
+import type { SelectedFilters } from '@/types';
+
 interface UserData {
   email: string;
   name: string;
@@ -12,6 +14,7 @@ interface UserData {
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'accessToken',
   USER_DATA: 'userData',
+  SELECTED_FILTERS: 'selectedFilters',
 } as const;
 
 /**
@@ -79,4 +82,36 @@ export const clearAuthStorage = (): void => {
 export const setAuthStorage = (token: string, userData: UserData): void => {
   setAccessToken(token);
   setUserData(userData);
+};
+
+/**
+ * Get selected filters from localStorage
+ */
+export const getSelectedFilters = (): SelectedFilters | null => {
+  const data = localStorage.getItem(STORAGE_KEYS.SELECTED_FILTERS);
+  if (!data) return null;
+
+  try {
+    return JSON.parse(data) as SelectedFilters;
+  } catch {
+    // Invalid JSON - remove corrupted data
+    removeSelectedFilters();
+    return null;
+  }
+};
+
+/**
+ * Set selected filters in localStorage
+ */
+export const setSelectedFilters = (filters: SelectedFilters): void => {
+  // Don't persist cursor - always start fresh
+  const filtersToPersist = { ...filters, cursor: null };
+  localStorage.setItem(STORAGE_KEYS.SELECTED_FILTERS, JSON.stringify(filtersToPersist));
+};
+
+/**
+ * Remove selected filters from localStorage
+ */
+export const removeSelectedFilters = (): void => {
+  localStorage.removeItem(STORAGE_KEYS.SELECTED_FILTERS);
 };

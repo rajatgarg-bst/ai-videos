@@ -1,5 +1,5 @@
-import { Box, Button, Grid, Typography } from '@mui/material';
-import { useEffect, useCallback } from 'react';
+import { Box, CircularProgress, Grid, Typography } from '@mui/material';
+import { useEffect, useCallback, useRef } from 'react';
 import ErrorMessage from '@/components/common/error-message';
 import LoadingSpinner from '@/components/common/loading-spinner';
 import { setSelectedVideo, setCursor } from '@/store/home-page/home-page-slice';
@@ -16,6 +16,8 @@ const VideoGrid: FC = () => {
   const { videos, loading, error, cursor, hasMore, selectedFilters, selectedVideo } =
     useAppSelector((state) => state.homePage);
 
+  const loaderRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
   const itemsPerPage = 20; // Default limit as per API spec
 
   // Fetch initial videos when filters change
@@ -37,11 +39,49 @@ const VideoGrid: FC = () => {
     selectedFilters.sortDuration,
   ]);
 
-  const handleLoadMore = useCallback(() => {
-    if (cursor && hasMore) {
-      void dispatch(fetchVideos({ filters: { ...selectedFilters, cursor }, limit: itemsPerPage }));
+  // Infinite scroll: Load more when loader is visible
+  const handleIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const entry = entries[0];
+
+      if (
+        entry &&
+        entry.isIntersecting &&
+        hasMore &&
+        cursor &&
+        !loading &&
+        !isFetchingRef.current
+      ) {
+        isFetchingRef.current = true;
+        void dispatch(
+          fetchVideos({ filters: { ...selectedFilters, cursor }, limit: itemsPerPage })
+        ).finally(() => {
+          isFetchingRef.current = false;
+        });
+      }
+    },
+    [dispatch, selectedFilters, cursor, hasMore, loading, itemsPerPage]
+  );
+
+  // Setup Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleIntersection, {
+      root: null,
+      rootMargin: '100px', // Trigger 100px before reaching the loader
+      threshold: 0.1,
+    });
+
+    const currentLoader = loaderRef.current;
+    if (currentLoader) {
+      observer.observe(currentLoader);
     }
-  }, [dispatch, selectedFilters, cursor, hasMore, itemsPerPage]);
+
+    return () => {
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
+      }
+    };
+  }, [handleIntersection]);
 
   const handleVideoClick = useCallback(
     (video: Video) => {
@@ -91,28 +131,24 @@ const VideoGrid: FC = () => {
         ))}
       </Grid>
 
+      {/* Infinite Scroll Loader */}
       {hasMore && cursor && (
-        <Box className="video-grid__load-more">
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            onClick={handleLoadMore}
-            disabled={loading}
-            className="video-grid__load-more-button"
-          >
-            {loading ? 'Loading...' : 'Load More Videos'}
-          </Button>
-          <Typography variant="body2" className="video-grid__load-more-info">
-            Showing {videos.length} videos
-          </Typography>
+        <Box ref={loaderRef} className="video-grid__infinite-loader">
+          {loading && (
+            <Box className="video-grid__loader-content">
+              <CircularProgress size={40} className="video-grid__spinner" />
+              <Typography variant="body2" className="video-grid__loader-text">
+                Loading more videos...
+              </Typography>
+            </Box>
+          )}
         </Box>
       )}
 
       {!hasMore && videos.length > 0 && (
         <Box className="video-grid__end-message">
           <Typography variant="body2" className="video-grid__end-text">
-            You&apos;ve reached the end of the list
+            You&apos;ve reached the end • {videos.length} videos
           </Typography>
         </Box>
       )}

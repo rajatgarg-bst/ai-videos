@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { getSelectedFilters, setSelectedFilters as saveFilters } from '@/utils/storage';
 import { fetchFilters, fetchVideos } from './home-page-thunks';
 import type { FilterData, SelectedFilters, Video } from '@/types';
 
@@ -15,6 +16,25 @@ interface HomePageState {
   videos: Video[];
 }
 
+// Load persisted filters from localStorage or use defaults
+const getInitialFilters = (): SelectedFilters => {
+  const savedFilters = getSelectedFilters();
+
+  return (
+    savedFilters ?? {
+      tags: [],
+      genere: [],
+      appPackageName: [],
+      platform: [],
+      fromCreatedAt: null,
+      toCreatedAt: null,
+      sortBy: 'createdAt',
+      sortDuration: 'desc',
+      cursor: null,
+    }
+  );
+};
+
 const initialState: HomePageState = {
   videos: [],
   loading: false,
@@ -27,17 +47,7 @@ const initialState: HomePageState = {
   },
   filtersLoading: false,
   filtersError: null,
-  selectedFilters: {
-    tags: [],
-    genere: [],
-    appPackageName: [],
-    platform: [],
-    fromCreatedAt: null,
-    toCreatedAt: null,
-    sortBy: 'createdAt',
-    sortDuration: 'desc',
-    cursor: null,
-  },
+  selectedFilters: getInitialFilters(),
   cursor: null,
   hasMore: true,
   selectedVideo: null,
@@ -49,15 +59,20 @@ const homePageSlice = createSlice({
   reducers: {
     setSelectedFilters: (state, action: PayloadAction<SelectedFilters>) => {
       state.selectedFilters = action.payload;
+      // Save to localStorage whenever filters change
+      saveFilters(action.payload);
     },
     setSelectedVideo: (state, action: PayloadAction<null | Video>) => {
       state.selectedVideo = action.payload;
     },
     setSortDuration: (state, action: PayloadAction<'asc' | 'desc'>) => {
       state.selectedFilters.sortDuration = action.payload;
+      // Save to localStorage
+      saveFilters(state.selectedFilters);
     },
     setCursor: (state, action: PayloadAction<null | string>) => {
       state.selectedFilters.cursor = action.payload;
+      // Don't save cursor to localStorage (handled in saveFilters)
     },
     clearFilters: (state) => {
       state.selectedFilters = {
@@ -73,6 +88,8 @@ const homePageSlice = createSlice({
       };
       state.cursor = null;
       state.hasMore = true;
+      // Clear filters from localStorage
+      saveFilters(state.selectedFilters);
     },
   },
   extraReducers: (builder) => {
