@@ -1,0 +1,126 @@
+.login-page {
+  align-items: center;
+  background: var(--bg-primary);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $spacing-sm;
+
+  &__card {
+    backdrop-filter: blur(10px);
+    background: #fff;
+    border: 2px solid rgb(255 255 255 / 50%);
+    border-radius: $border-radius-xl;
+    box-shadow:
+      0 0 60px var(--shadow-primary),
+      0 20px 60px var(--overlay-black-30),
+      0 0 0 1px var(--overlay-white-10) inset;
+    max-width: 400px;
+    padding: $spacing-xl $spacing-lg;
+    position: relative;
+    width: 100%;
+
+    &::after {
+      background: linear-gradient(90deg, transparent, var(--overlay-white-10), transparent);
+      bottom: 0;
+      content: '';
+      height: 1px;
+      left: 0;
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+    }
+  }
+
+  &__icon-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: $spacing-md;
+  }
+
+  &__icon {
+    align-items: center;
+    background: var(--bg-dark); // Blackish background
+    border: 1px solid var(--border-color);
+    border-radius: $border-radius-lg;
+    display: flex;
+    height: 56px;
+    justify-content: center;
+    width: 56px;
+  }
+
+  &__play-icon {
+    color: var(--text-secondary);
+    font-size: 36px;
+  }
+
+  &__header {
+    margin-bottom: $spacing-md;
+    text-align: center;
+  }
+
+  &__title {
+    color: var(--text-light);
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-xs;
+  }
+
+  &__subtitle {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-normal;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__error {
+    border-radius: $border-radius-md;
+  }
+
+  &__button-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: $spacing-sm 0;
+  }
+
+  &__footer-text {
+    color: var(--text-tertiary);
+    font-size: $font-size-xs;
+    text-align: center;
+  }
+}
+
+@include breakpoint-up(sm) {
+  .login-page {
+    padding: $spacing-md;
+
+    &__card {
+      max-width: 420px;
+      padding: $spacing-xl $spacing-lg;
+    }
+
+    &__icon {
+      height: 60px;
+      width: 60px;
+    }
+
+    &__play-icon {
+      font-size: 38px;
+    }
+
+    &__title {
+      font-size: $font-size-2xl;
+    }
+
+    &__subtitle {
+      font-size: $font-size-base;
+    }
+  }
+}

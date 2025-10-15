@@ -1,0 +1,97 @@
+.video-grid {
+  min-height: 400px;
+  padding: 0;
+
+  &__empty {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    justify-content: center;
+    min-height: 400px;
+    padding: $spacing-2xl $spacing-lg;
+    text-align: center;
+  }
+
+  &__empty-title {
+    color: var(--text-primary);
+    font-weight: $font-weight-semibold;
+    margin: 0;
+  }
+
+  &__empty-text {
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 500px;
+  }
+
+  &__pagination {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-3xl;
+    padding: $spacing-lg 0;
+  }
+
+  &__pagination-component {
+    /* stylelint-disable-next-line selector-class-pattern */
+    .MuiPagination-ul {
+      flex-wrap: nowrap;
+      gap: $spacing-xs;
+      overflow-x: auto;
+      padding: $spacing-sm 0;
+    }
+
+    /* stylelint-disable selector-class-pattern */
+    .MuiPaginationItem-root {
+      border-radius: $border-radius-md;
+      font-weight: $font-weight-medium;
+      transition: all $transition-fast $transition-timing;
+
+      &:hover {
+        background: var(--bg-tertiary);
+        box-shadow: 0 2px 8px var(--shadow-subtle);
+        transform: translateY(-2px);
+      }
+
+      &.Mui-selected {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        box-shadow: 0 4px 12px var(--shadow-primary);
+        color: var(--text-light);
+
+        &:hover {
+          background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+        }
+      }
+    }
+    /* stylelint-enable selector-class-pattern */
+  }
+
+  &__pagination-info {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    text-align: center;
+  }
+}
+
+@include breakpoint-up(md) {
+  .video-grid {
+    padding: $spacing-lg 0;
+
+    &__pagination {
+      margin-top: $spacing-2xl;
+      padding: $spacing-lg 0;
+    }
+
+    &__pagination-component {
+      /* stylelint-disable-next-line selector-class-pattern */
+      .MuiPagination-ul {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        padding: 0;
+      }
+    }
+  }
+}

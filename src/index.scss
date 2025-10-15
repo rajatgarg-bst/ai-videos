@@ -1,0 +1,29 @@
+/* Global Styles - Applied after reset.scss and Material UI CssBaseline */
+
+/* Variables and Mixins are auto-imported globally via Vite config */
+
+/* Global Styles */
+html {
+  background: var(--bg-primary);
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  min-height: 100vh;
+}
+
+/* Root Container */
+[id='root'] {
+  background: var(--bg-primary);
+  min-height: 100vh;
+  width: 100%;
+}
+
+.root-container {
+  min-height: 100vh;
+  width: 100%;
+}

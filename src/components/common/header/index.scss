@@ -1,0 +1,146 @@
+/* Variables and Mixins are auto-imported globally via Vite config */
+
+.header {
+  background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+  border-bottom: 1px solid var(--overlay-white-10);
+  box-shadow:
+    0 4px 24px var(--shadow-primary),
+    0 0 0 1px var(--overlay-white-10) inset;
+  position: relative;
+
+  &::after {
+    background: linear-gradient(90deg, transparent, var(--overlay-white-10), transparent);
+    bottom: 0;
+    content: '';
+    height: 1px;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+  }
+
+  &__toolbar {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    min-height: 56px;
+    padding: $spacing-xs $spacing-md;
+  }
+
+  &__logo-container {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: $spacing-sm;
+  }
+
+  &__logo {
+    filter: drop-shadow(0 2px 8px var(--overlay-black-20));
+    height: 32px;
+    transition: all $transition-base $transition-timing;
+    width: auto;
+
+    &:hover {
+      filter: drop-shadow(0 4px 16px var(--overlay-black-30));
+      transform: scale(1.05) translateY(-2px);
+    }
+  }
+
+  &__user-section {
+    align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    gap: $spacing-sm;
+  }
+
+  &__avatar {
+    border: 2px solid var(--overlay-white-20);
+    height: 32px;
+    transition: all $transition-base;
+    width: 32px;
+
+    &:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 12px var(--overlay-black-20);
+    }
+  }
+
+  &__username {
+    color: var(--text-light);
+    display: none;
+    font-weight: $font-weight-medium;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__logout-button {
+    border-color: var(--overlay-white-20);
+    color: var(--text-light);
+    font-size: $font-size-xs;
+    min-width: auto;
+    padding: $spacing-xs $spacing-sm;
+    transition: all $transition-base;
+
+    &:hover {
+      background-color: var(--overlay-white-10);
+      border-color: var(--primary-color);
+    }
+  }
+}
+
+@include breakpoint-up(sm) {
+  .header {
+    &__toolbar {
+      min-height: 64px;
+      padding: $spacing-sm $spacing-lg;
+    }
+
+    &__logo {
+      height: 40px;
+    }
+
+    &__user-section {
+      gap: $spacing-md;
+    }
+
+    &__avatar {
+      height: 36px;
+      width: 36px;
+    }
+
+    &__logout-button {
+      font-size: $font-size-sm;
+      padding: $spacing-xs $spacing-md;
+    }
+  }
+}
+
+@include breakpoint-up(md) {
+  .header {
+    &__toolbar {
+      min-height: 70px;
+      padding: $spacing-md $spacing-2xl;
+    }
+
+    &__logo {
+      height: 50px;
+    }
+
+    &__username {
+      display: block;
+      max-width: 200px;
+    }
+
+    &__avatar {
+      height: 40px;
+      width: 40px;
+    }
+
+    &__logout-button {
+      font-size: $font-size-base;
+      padding: $spacing-sm $spacing-lg;
+    }
+  }
+}

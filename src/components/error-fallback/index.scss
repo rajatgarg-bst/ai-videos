@@ -1,0 +1,50 @@
+/* Variables and Mixins are auto-imported globally via Vite config */
+
+.error-fallback {
+  &__container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: $spacing-xl;
+    text-align: center;
+  }
+
+  &__icon {
+    color: var(--error-color);
+    font-size: 80px;
+    margin-bottom: $spacing-xl;
+  }
+
+  &__error-details {
+    background-color: var(--bg-secondary);
+    border-left: 4px solid var(--error-color);
+    border-radius: $border-radius-sm;
+    margin: $spacing-md 0;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: $spacing-md;
+    text-align: left;
+
+    pre {
+      font-family: $font-family-mono;
+      font-size: $font-size-sm;
+      margin: 0;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+@include breakpoint-up(md) {
+  .error-fallback {
+    &__icon {
+      font-size: 96px;
+    }
+
+    &__error-details {
+      padding: $spacing-lg;
+    }
+  }
+}

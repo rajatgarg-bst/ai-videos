@@ -1,0 +1,81 @@
+/* Common SCSS Mixins - Only Essential Patterns */
+
+// Use variables for breakpoints (modern Sass syntax)
+@use './variables' as *;
+
+// 1. Responsive breakpoints - Mobile-first approach (min-width)
+// Usage: @include breakpoint-up(md) { ... } applies styles for screens >= 1024px
+@mixin breakpoint-up($breakpoint) {
+  @if $breakpoint == xs {
+    @media (min-width: $breakpoint-xs) {
+      @content;
+    }
+  } @else if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) {
+      @content;
+    }
+  } @else if $breakpoint == md {
+    @media (min-width: $breakpoint-md) {
+      @content;
+    }
+  } @else if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) {
+      @content;
+    }
+  } @else if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) {
+      @content;
+    }
+  }
+}
+
+// 2. Text truncation - Common pattern, easy to forget properties
+@mixin truncate-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 3. Hover lift effect - Consistent animation pattern
+@mixin hover-lift {
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 16px rgb(0 0 0 / 15%);
+    transform: translateY(-2px);
+  }
+}
+
+// 4. Focus visible - Accessibility pattern
+@mixin focus-visible($color: var(--primary-color), $offset: 2px) {
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: $offset;
+  }
+}
+
+// 5. Custom scrollbar - Vendor-specific, multiple selectors
+@mixin custom-scrollbar($width: 8px, $track-color: var(--bg-secondary), $thumb-color: var(--text-tertiary)) {
+  &::-webkit-scrollbar {
+    height: $width;
+    width: $width;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $track-color;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $thumb-color;
+    border-radius: calc($width / 2);
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// 6. Gradient background - Parameterized pattern
+@mixin gradient-bg($start-color, $end-color, $direction: 135deg) {
+  background: linear-gradient($direction, $start-color 0%, $end-color 100%);
+}

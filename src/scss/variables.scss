@@ -1,0 +1,119 @@
+/* ==========================================================================
+   CSS Custom Properties (CSS Variables) - For Runtime Theming
+   ========================================================================== */
+
+/*
+ * ⚠️ IMPORTANT: Color values are centralized in src/theme/design-tokens.ts
+ * 
+ * All colors are defined in TypeScript and injected as CSS variables at runtime.
+ * This ensures consistency between Material-UI theme and SCSS styling.
+ * 
+ * To update colors:
+ * 1. Edit src/theme/design-tokens.ts
+ * 2. Colors automatically sync to:
+ *    - Material-UI theme (mui-theme.ts)
+ *    - CSS custom properties (injected at runtime)
+ *    - SCSS files (reference via var(--color-name))
+ */
+
+:root {
+  /* Colors are injected dynamically from src/theme/design-tokens.ts */
+
+  /* Use var(--color-name) in your SCSS files */
+}
+
+/* ==========================================================================
+   SCSS Variables - For Build-Time Static Values
+   ========================================================================== */
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+// Font families
+$font-family-base: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+$font-family-heading: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+$font-family-mono: 'Courier New', monospace;
+
+// Font sizes
+$font-size-xs: 12px;
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 18px;
+$font-size-xl: 20px;
+$font-size-2xl: 24px;
+$font-size-3xl: 30px;
+$font-size-4xl: 36px;
+
+// Font weights
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Line heights
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+$line-height-loose: 2;
+
+// Border radius
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 9999px;
+
+// Transitions
+$transition-fast: 0.15s;
+$transition-base: 0.3s;
+$transition-slow: 0.5s;
+$transition-timing: ease;
+$transition-timing-in: ease-in;
+$transition-timing-out: ease-out;
+$transition-timing-in-out: ease-in-out;
+
+// Z-index layers
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
+
+// Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 1024px;
+$breakpoint-lg: 1280px;
+$breakpoint-xl: 1536px;
+
+// Container max widths
+$container-sm: 640px;
+$container-md: 768px;
+$container-lg: 1024px;
+$container-xl: 1280px;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 5%);
+$shadow-md:
+  0 4px 6px -1px rgb(0 0 0 / 10%),
+  0 2px 4px -1px rgb(0 0 0 / 6%);
+$shadow-lg:
+  0 10px 15px -3px rgb(0 0 0 / 10%),
+  0 4px 6px -2px rgb(0 0 0 / 5%);
+$shadow-xl:
+  0 20px 25px -5px rgb(0 0 0 / 10%),
+  0 10px 10px -5px rgb(0 0 0 / 4%);
+$shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 25%);
+
+// Opacity
+$opacity-disabled: 0.5;
+$opacity-hover: 0.8;

@@ -1,0 +1,24 @@
+/* Variables and Mixins are auto-imported globally via Vite config */
+
+.video-sort {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-md;
+  padding: 0 $spacing-sm;
+
+  &__control {
+    min-width: 160px;
+
+    @include breakpoint-up(sm) {
+      min-width: 180px;
+    }
+  }
+
+  &__select {
+    background: var(--bg-secondary);
+    border-radius: $border-radius-md;
+    color: var(--text-primary);
+    transition: all $transition-base;
+  }
+}

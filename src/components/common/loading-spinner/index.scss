@@ -1,0 +1,15 @@
+.loading-spinner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  justify-content: center;
+  min-height: 200px;
+  padding: $spacing-lg;
+
+  &__message {
+    color: var(--text-secondary);
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}

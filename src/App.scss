@@ -1,0 +1,21 @@
+/* Variables and Mixins are auto-imported globally via Vite config */
+
+/* Root Container */
+.root {
+  min-height: 100vh;
+}
+
+/* Accessibility improvements */
+*:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar using mixin */
+::-webkit-scrollbar {
+  @include custom-scrollbar($spacing-sm, var(--bg-secondary), var(--text-tertiary));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

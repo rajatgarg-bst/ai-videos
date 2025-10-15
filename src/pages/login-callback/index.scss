@@ -1,0 +1,14 @@
+.login-callback {
+  align-items: center;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  justify-content: center;
+  min-height: 100vh;
+
+  &__text {
+    color: var(--text-secondary);
+    font-size: $font-size-lg;
+  }
+}

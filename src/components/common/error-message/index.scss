@@ -1,0 +1,31 @@
+.error-message {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  justify-content: center;
+  min-height: 300px;
+  padding: $spacing-2xl $spacing-lg;
+  text-align: center;
+
+  &__icon {
+    color: var(--error-color);
+    font-size: 64px;
+  }
+
+  &__title {
+    color: var(--text-primary);
+    font-weight: $font-weight-semibold;
+    margin: 0;
+  }
+
+  &__text {
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 500px;
+  }
+
+  &__button {
+    margin-top: $spacing-sm;
+  }
+}
