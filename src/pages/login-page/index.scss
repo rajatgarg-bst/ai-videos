@@ -8,7 +8,7 @@
 
   &__card {
     backdrop-filter: blur(10px);
-    background: #fff;
+    background: var(--bg-primary);
     border: 2px solid rgb(255 255 255 / 50%);
     border-radius: $border-radius-xl;
     box-shadow:
